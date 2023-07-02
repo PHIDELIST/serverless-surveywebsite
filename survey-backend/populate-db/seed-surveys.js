@@ -1,6 +1,8 @@
-'use strict'
+'use strict';
 import { v4 as uuid } from 'uuid';
 import AWS from 'aws-sdk';
+import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import { DynamoDB } from "@aws-sdk/client-dynamodb";
 import dotenv from 'dotenv';
 dotenv.config();
 const region = 'us-east-1';
@@ -42,61 +44,61 @@ async function seedSurveys() {
     survey1.survey_adminAvatarName= "1.png";
 
     try{
-        await DynamoDB.put({Item :survey1, TableName : surveysTable}).promise();
+        await DynamoDB.put({Item :survey1, TableName : surveysTable});
     }catch(err){
         console.log(err);
     }
 
     let survey2 = {};
-    survey1.admin_id = "2";
-    survey1.id = uuid();
-    survey1.survey_title = "Second Test Survey";
-    survey1.survey_description = "This is a second test survey";
-    survey1.survey_created_date = formttedDateNow;
-    survey1.survey_updated_date = formttedDateNow;
-    survey1.survey_end_date = "2023-07-15";
-    survey1.survey_adminName = "phidelist";
-    survey1.survey_adminEmail = "phidel@gmail.com";
-    survey1.survey_adminPassword = "#########";
-    survey1.survey_adminPhone = "+25409090909";
-    survey1.survey_adminCountry= "kenya";
-    survey1.survey_adminCity= "Nyeri";
-    survey1.survey_adminOrganizationType= "IT";
-    survey1.survey_adminOrganizationName= "JITU";
-    survey1.survey_adminAvatarName= "2.png";
+    survey2.admin_id = "2";
+    survey2.id = uuid();
+    survey2.survey_title = "Second Test Survey";
+    survey2.survey_description = "This is a second test survey";
+    survey2.survey_created_date = formttedDateNow;
+    survey2.survey_updated_date = formttedDateNow;
+    survey2.survey_end_date = "2023-07-15";
+    survey2.survey_adminName = "phidelist";
+    survey2.survey_adminEmail = "phidel@gmail.com";
+    survey2.survey_adminPassword = "#########";
+    survey2.survey_adminPhone = "+25409090909";
+    survey2.survey_adminCountry= "kenya";
+    survey2.survey_adminCity= "Nyeri";
+    survey2.survey_adminOrganizationType= "IT";
+    survey2.survey_adminOrganizationName= "JITU";
+    survey2.survey_adminAvatarName= "2.png";
 
     try{
-        await DynamoDB.put({Item :survey2, TableName : surveysTable}).promise();
+        await DynamoDB.put({Item :survey2, TableName : surveysTable});
     }catch(err){
         console.log(err);
     }
     let survey3 = {};
-    survey1.admin_id = "3";
-    survey1.id = uuid();
-    survey1.survey_title = "Test Survey Three";
-    survey1.survey_description = "This is third test survey";
-    survey1.survey_created_date = formttedDateNow;
-    survey1.survey_updated_date = formttedDateNow;
-    survey1.survey_end_date = "2023-07-15";
-    survey1.survey_adminName = "phidelist";
-    survey1.survey_adminEmail = "phidel@gmail.com";
-    survey1.survey_adminPassword = "2846614";
-    survey1.survey_adminPhone = "+25409090909";
-    survey1.survey_adminCountry= "kenya";
-    survey1.survey_adminCity= "Nyeri";
-    survey1.survey_adminOrganizationType= "IT";
-    survey1.survey_adminOrganizationName= "JITU";
-    survey1.survey_adminAvatarName= "3.png";
+    survey3.admin_id = "3";
+    survey3.id = uuid();
+    survey3.survey_title = "Test Survey Three";
+    survey3.survey_description = "This is third test survey";
+    survey3.survey_created_date = formttedDateNow;
+    survey3.survey_updated_date = formttedDateNow;
+    survey3.survey_end_date = "2023-07-15";
+    survey3.survey_adminName = "phidelist";
+    survey3.survey_adminEmail = "phidel@gmail.com";
+    survey3.survey_adminPassword = "2846614";
+    survey3.survey_adminPhone = "+25409090909";
+    survey3.survey_adminCountry= "kenya";
+    survey3.survey_adminCity= "Nyeri";
+    survey3.survey_adminOrganizationType= "IT";
+    survey3.survey_adminOrganizationName= "JITU";
+    survey3.survey_adminAvatarName= "3.png";
 
     try{
-        await DynamoDB.put({Item :survey3, TableName : surveysTable}).promise();
+        await DynamoDB.put({Item :survey3, TableName : surveysTable});
     }catch(err){
         console.log(err);
     }
 
 }
- 
-const DynamoDB = new AWS.DynamoDB.DocumentClient();
+
+const DynamoDB = DynamoDBDocument.from(new DynamoDB());
 
 seedSurveys(DynamoDB);
 console.log('done seeding surveys');
