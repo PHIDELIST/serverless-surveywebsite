@@ -1,10 +1,10 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   survey-backend
 
   Sample SAM Template for survey-backend
-  
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
@@ -13,23 +13,93 @@ Globals:
 Resources:
   SurveysTable:
     Type: AWS::DynamoDB::Table
-    Properties: 
+    Properties:
       TableName: surveys-table
-      AttributeDefinitions: 
+      AttributeDefinitions:
         - AttributeName: admin_id
           AttributeType: S
         - AttributeName: id
           AttributeType: S
-      KeySchema: 
+      KeySchema:
         - AttributeName: admin_id
           KeyType: HASH
         - AttributeName: id
           KeyType: RANGE
-      ProvisionedThroughput: 
+      ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
+  GetSurveys:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/survey-api/functions/get-surveys/
+      Handler: app.getSurveys
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          SURVEY_TABLE: !Ref SurveysTable
+      Policies:
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:Query 
+              - dynamodb:Scan
+            Resource:
+              - !Sub 
+                - 'arn:aws:dynamodb:*:*:table/${Table}'
+                - { Table: !Ref SurveysTable }
+          - Effect: Allow
+            Action:
+              - logs:*
+            Resource:
+              - "*"    
+  SurveyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Dev
+      Cors:
+        AllowMethods: "'POST, GET, UPDATE, DELETE'"
+        AllowHeaders: "'X-Forwarded-For'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      DefinitionBody:
+        "Fn::Transform":
+          Name: "AWS::Include"
+          Parameters:
+            Location: "./api.yaml"
 
+  ApiGwExecutionRole: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "apigateway.amazonaws.com"
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+
+  ApiGwExecutionPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "apigw-execution-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:*
+            
+            Resource:
+              - !GetAtt GetSurveys.Arn
+      Roles:
+        - Ref: "ApiGwExecutionRole"
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -38,3 +108,9 @@ Outputs:
   DynamoDBTableName:
     Description: "DynamoDB Table Name"
     Value: !Ref SurveysTable
+  GetSurveys:
+    Description: "GetSurveys Lambda Functions ARN"
+    Value: !GetAtt GetSurveys.Arn
+  SurveyApiEndpoint:
+    Description: "API Gateway endpoint URL for Dev stage for Survey Get function"
+    Value: !Sub "https://${SurveyApi}.execute-api.us-east-1.amazonaws.com/Dev/surveys/"

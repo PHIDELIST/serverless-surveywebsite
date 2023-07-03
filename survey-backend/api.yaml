@@ -1,0 +1,20 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: "survey-app"
+basePath: "/Dev"
+schemes:
+- "https"
+paths:
+  /surveys:
+    get:
+      responses: {}
+      x-amazon-apigateway-integration:
+        credentials: 
+          Fn::GetAtt: [ ApiGwExecutionRole, Arn ]
+        type: "aws_proxy"
+        httpMethod: "POST"
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSurveys.Arn}/invocations
+        passthroughBehavior: "when_no_match"
