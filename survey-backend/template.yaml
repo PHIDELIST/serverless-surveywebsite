@@ -53,7 +53,30 @@ Resources:
             Action:
               - logs:*
             Resource:
-              - "*"    
+              - "*"  
+  PostSurveys:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/survey-api/functions/post-surveys/
+      Handler: app.postSurveys
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          SURVEY_TABLE: !Ref SurveysTable
+      Policies:
+        Statement:
+          - Effect: Allow
+            Action: 
+              - dynamodb:PutItem
+            Resource:
+              - !Sub
+                - 'arn:aws:dynamodb:*:*:table/${Table}' 
+                - {Table: !Ref SurveysTable}
+          - Effect: Allow
+            Action:
+              - log:*
+            Resource:
+              - "*" 
   SurveyApi:
     Type: AWS::Serverless::Api
     Properties:
